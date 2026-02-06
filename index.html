@@ -43,6 +43,15 @@
                 Powered by OpenAI Whisper large-v3 — 100% local, free, and private.
             </p>
 
+            <div class="local-backend-note" id="local-backend-note">
+                <strong>Local Whisper required:</strong> This public site is static. To transcribe, run the Whisper server locally
+                and open this page via <code>http://localhost:3000</code>.
+                <div class="local-backend-steps">
+                    <div>1) Start the server: <code>node server.js</code></div>
+                    <div>2) Open: <code>http://localhost:3000</code></div>
+                </div>
+            </div>
+
             <!-- Transcription Card -->
             <div class="transcription-card">
                 <form id="transcribe-form">
@@ -191,6 +200,13 @@
             return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
 
+        const isGitHubPages = window.location.hostname.endsWith('github.io');
+
+        if (isGitHubPages) {
+            document.getElementById('local-backend-note').style.display = 'block';
+            submitBtn.disabled = true;
+        }
+
         // Form submission
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -222,7 +238,10 @@
                     alert('Error: ' + (data.error || 'Transcription failed'));
                 }
             } catch (err) {
-                alert('Error: ' + err.message);
+                const message = isGitHubPages
+                    ? 'This page is static. Start the local Whisper server and open http://localhost:3000 to transcribe.'
+                    : err.message;
+                alert('Error: ' + message);
             } finally {
                 loading.classList.remove('visible');
                 submitBtn.disabled = false;

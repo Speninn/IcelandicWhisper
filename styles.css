@@ -201,6 +201,37 @@ body {
     letter-spacing: 0.5px;
 }
 
+.local-backend-note {
+    display: none;
+    margin: 0 auto 2rem;
+    padding: 1.25rem 1.5rem;
+    max-width: 620px;
+    background: rgba(0, 255, 102, 0.08);
+    border: 1px solid rgba(0, 255, 102, 0.35);
+    border-radius: 14px;
+    color: var(--text-secondary);
+    text-align: left;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.local-backend-note strong {
+    color: var(--neon-green);
+}
+
+.local-backend-note code {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+    color: var(--neon-green-light);
+}
+
+.local-backend-steps {
+    margin-top: 0.75rem;
+    display: grid;
+    gap: 0.35rem;
+    color: var(--text-primary);
+}
+
 /* Iceland Flag Badge */
 .iceland-badge {
     display: inline-flex;
