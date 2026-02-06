@@ -78,6 +78,31 @@ body {
     letter-spacing: 0.5px;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.pr-button {
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 255, 102, 0.6);
+    color: var(--neon-green);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: var(--transition-smooth);
+    box-shadow: 0 0 18px rgba(0, 255, 102, 0.15);
+    white-space: nowrap;
+}
+
+.pr-button:hover {
+    background: var(--neon-green);
+    color: var(--app-black);
+    box-shadow: 0 0 24px rgba(0, 255, 102, 0.4);
+}
+
 .logo {
     font-size: 1.75rem;
     font-weight: 900;
