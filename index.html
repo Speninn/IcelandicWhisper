@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Icelandic Whisper - Transcribe Icelandic audio to SRT subtitles with AI">
+    <title>Icelandic Whisper | Audio Transcription</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Transcribing audio...</div>
+        <div class="loading-subtext">Using Whisper large-v3 for best Icelandic accuracy</div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo-wrapper">
+                <div class="logo">🇮🇸 WHISPER.IS</div>
+                <div class="logo-subtitle">Icelandic Transcription</div>
+            </div>
+            <div class="header-quote">"Íslenska Þjóð, Þér er ætlað að geyma, Íslenska tungu hinn dýrasta arf"</div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <span class="hero-icon">🎙️</span>
+            <div class="iceland-badge">
+                <span>🇮🇸</span>
+                <span>Íslenska</span>
+            </div>
+            <h1 class="hero-title">Icelandic Audio<br>to SRT Subtitles</h1>
+            <p class="hero-subtitle">
+                Upload your Icelandic audio and get accurate transcriptions with timecodes.<br>
+                Powered by OpenAI Whisper large-v3 — 100% local, free, and private.
+            </p>
+
+            <!-- Transcription Card -->
+            <div class="transcription-card">
+                <form id="transcribe-form">
+                    <label class="upload-area" for="audio-file" id="upload-area">
+                        <span class="upload-icon">📁</span>
+                        <div class="upload-text">Drop audio file here or click to browse</div>
+                        <div class="upload-hint">Supports MP3, WAV, M4A, OGG, FLAC</div>
+                    </label>
+                    <input type="file" id="audio-file" name="file" accept="audio/*" required>
+                    
+                    <div class="file-selected" id="file-selected" style="display: none;">
+                        <span class="file-icon">🎵</span>
+                        <div class="file-info">
+                            <div class="file-name" id="file-name">filename.mp3</div>
+                            <div class="file-size" id="file-size">2.5 MB</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-button" id="submit-btn" disabled>
+                        ⚡ Transcribe Audio
+                    </button>
+                </form>
+
+                <!-- Results Section -->
+                <div class="results-section" id="results">
+                    <div class="result-tabs">
+                        <button class="tab-button active" id="tab-txt" onclick="showTab('txt')">📝 Text</button>
+                        <button class="tab-button" id="tab-srt" onclick="showTab('srt')">⏱️ SRT (Subtitles)</button>
+                    </div>
+                    
+                    <div class="result-content">
+                        <div class="txt-content visible" id="txt-content">
+                            <pre class="result-text" id="result-text"></pre>
+                        </div>
+                        <div class="srt-content" id="srt-content">
+                            <pre class="result-text" id="result-srt"></pre>
+                        </div>
+                    </div>
+
+                    <div class="result-actions">
+                        <button class="copy-button" onclick="copyResult()">
+                            📋 Copy
+                        </button>
+                        <button class="download-button" onclick="downloadSRT()">
+                            ⬇️ Download SRT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🇮🇸</span>
+                <h3>Optimized for Icelandic</h3>
+                <p>Uses the large-v3 model with forced Icelandic language detection for maximum accuracy.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">⏱️</span>
+                <h3>SRT Subtitles</h3>
+                <p>Get properly formatted SRT files with accurate timecodes, ready for video editing.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🔒</span>
+                <h3>100% Private</h3>
+                <p>All processing happens locally on your computer. No data sent to external servers.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">💰</span>
+                <h3>Completely Free</h3>
+                <p>No API costs, no subscriptions. Uses local Whisper.cpp for transcription.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">WHISPER.IS</div>
+            <p class="footer-text">Icelandic Audio Transcription — Powered by Whisper.cpp</p>
+            <div class="footer-links">
+                <a href="https://github.com/ggerganov/whisper.cpp" target="_blank">whisper.cpp</a>
+                <a href="https://github.com/openai/whisper" target="_blank">OpenAI Whisper</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const form = document.getElementById('transcribe-form');
+        const fileInput = document.getElementById('audio-file');
+        const uploadArea = document.getElementById('upload-area');
+        const fileSelected = document.getElementById('file-selected');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const submitBtn = document.getElementById('submit-btn');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const resultText = document.getElementById('result-text');
+        const resultSrt = document.getElementById('result-srt');
+
+        let currentText = '';
+        let currentSrt = '';
+        let currentTab = 'txt';
+
+        // Drag and drop handling
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('audio/')) {
+                fileInput.files = files;
+                handleFileSelect(files[0]);
+            }
+        });
+
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileSelected.style.display = 'flex';
+            uploadArea.style.display = 'none';
+            submitBtn.disabled = false;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!fileInput.files.length) return;
+
+            loading.classList.add('visible');
+            results.classList.remove('visible');
+            submitBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/transcribe', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentText = data.text || '';
+                    currentSrt = data.srt || '';
+                    resultText.textContent = currentText;
+                    resultSrt.textContent = currentSrt || 'No SRT data available';
+                    results.classList.add('visible');
+                } else {
+                    alert('Error: ' + (data.error || 'Transcription failed'));
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            } finally {
+                loading.classList.remove('visible');
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Tab switching
+        function showTab(tab) {
+            currentTab = tab;
+            document.getElementById('tab-txt').classList.toggle('active', tab === 'txt');
+            document.getElementById('tab-srt').classList.toggle('active', tab === 'srt');
+            document.getElementById('txt-content').classList.toggle('visible', tab === 'txt');
+            document.getElementById('srt-content').classList.toggle('visible', tab === 'srt');
+        }
+
+        // Copy result
+        function copyResult() {
+            const text = currentTab === 'txt' ? currentText : currentSrt;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-button');
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = '📋 Copy';
+                }, 2000);
+            });
+        }
+
+        // Download SRT
+        function downloadSRT() {
+            if (!currentSrt) {
+                alert('No SRT content available');
+                return;
+            }
+            const blob = new Blob([currentSrt], { type: 'text/srt' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (fileName.textContent.replace(/\.[^/.]+$/, '') || 'transcription') + '.srt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Reset form to upload another file
+        fileSelected.addEventListener('click', () => {
+            fileInput.value = '';
+            fileSelected.style.display = 'none';
+            uploadArea.style.display = 'block';
+            submitBtn.disabled = true;
+            results.classList.remove('visible');
+        });
+    </script>
+</body>
+</html>
